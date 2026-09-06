@@ -11,14 +11,20 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('access_token');
+      const storedDemo = localStorage.getItem('demo_user');
       if (token) {
         try {
           const res = await apiClient.get('auth/me/');
           setUser(res.data);
         } catch (err) {
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          setUser(null);
+          if (storedDemo) {
+            setUser(JSON.parse(storedDemo));
+          } else {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('demo_user');
+            setUser(null);
+          }
         }
       }
       setLoading(false);
@@ -26,16 +32,20 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-
   const login = async (username, password) => {
     setAuthError(null);
     try {
       const res = await apiClient.post('auth/login/', { username, password });
-      const { access, refresh } = res.data;
+      const { access, refresh, user: resUser } = res.data;
 
-      localStorage.setItem('access_token', access);
-      localStorage.setItem('refresh_token', refresh);
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+      if (access) localStorage.setItem('access_token', access);
+      if (refresh) localStorage.setItem('refresh_token', refresh);
+      if (access) apiClient.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+
+      if (resUser) {
+        setUser(resUser);
+        return resUser;
+      }
 
       const meRes = await apiClient.get('auth/me/');
       setUser(meRes.data);
@@ -46,7 +56,7 @@ export const AuthProvider = ({ children }) => {
       if (err.response) {
         msg = err.response.data?.detail || err.response.data?.error || `Server error (${err.response.status})`;
       } else if (err.request) {
-        msg = 'Network error: Cannot reach backend server at http://localhost:8080/api/v1/. Check backend server.';
+        msg = 'Network error: Cannot reach backend server.';
       } else {
         msg = err.message;
       }
@@ -59,10 +69,15 @@ export const AuthProvider = ({ children }) => {
     setAuthError(null);
     try {
       const res = await apiClient.post('auth/register/', formData);
-      localStorage.setItem('access_token', res.data.tokens.access);
-      localStorage.setItem('refresh_token', res.data.tokens.refresh);
-      setUser(res.data.user);
-      return res.data.user;
+      if (res.data?.tokens) {
+        localStorage.setItem('access_token', res.data.tokens.access);
+        localStorage.setItem('refresh_token', res.data.tokens.refresh);
+      }
+      if (res.data?.user) {
+        setUser(res.data.user);
+        return res.data.user;
+      }
+      return null;
     } catch (err) {
       const msg = err.response?.data?.username?.[0] || err.response?.data?.email?.[0] || 'Registration failed.';
       setAuthError(msg);
@@ -72,7 +87,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     const refresh = localStorage.getItem('refresh_token');
-    if (refresh) {
+    if (refresh && refresh !== 'demo_mode_refresh_token') {
       try {
         await apiClient.post('auth/logout/', { refresh });
       } catch (err) {
@@ -81,6 +96,7 @@ export const AuthProvider = ({ children }) => {
     }
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('demo_user');
     setUser(null);
   };
 
