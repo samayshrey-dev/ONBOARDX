@@ -34,7 +34,7 @@ const PartnerDashboard = () => {
     setErrorMsg('');
     try {
       const appsRes = await axios.get('/onboarding/applications/');
-      const appsList = appsRes.data.results || appsRes.data || [];
+      const appsList = Array.isArray(appsRes.data) ? appsRes.data : (appsRes.data?.results && Array.isArray(appsRes.data.results) ? appsRes.data.results : []);
       setApplications(appsList);
 
       if (appsList.length > 0) {
@@ -43,7 +43,8 @@ const PartnerDashboard = () => {
         await loadAppData(app.id);
       } else {
         const bpRes = await axios.get('/onboarding/blueprints/');
-        setBlueprints(bpRes.data.results || bpRes.data || []);
+        const bpList = Array.isArray(bpRes.data) ? bpRes.data : (bpRes.data?.results && Array.isArray(bpRes.data.results) ? bpRes.data.results : []);
+        setBlueprints(bpList);
       }
     } catch (err) {
       const msg = err.response?.data?.detail || "Failed to load onboarding dashboard.";
@@ -56,10 +57,12 @@ const PartnerDashboard = () => {
   const loadAppData = async (appId) => {
     try {
       const docsRes = await axios.get(`/documents/application/${appId}/`);
-      setDocuments(docsRes.data || []);
+      const docsList = Array.isArray(docsRes.data) ? docsRes.data : [];
+      setDocuments(docsList);
 
       const actRes = await axios.get(`/activity/applications/${appId}/`);
-      setActivities(actRes.data || []);
+      const actList = Array.isArray(actRes.data) ? actRes.data : [];
+      setActivities(actList);
     } catch (err) {
       console.error("Error loading app details:", err);
     }
@@ -124,17 +127,18 @@ const PartnerDashboard = () => {
     }
   };
 
-  const totalDocs = documents.length;
-  const verifiedDocsCount = documents.filter(d => d.status === 'APPROVED').length;
+  const safeDocs = Array.isArray(documents) ? documents : [];
+  const totalDocs = safeDocs.length;
+  const verifiedDocsCount = safeDocs.filter(d => d && d.status === 'APPROVED').length;
   const progressPercent = totalDocs > 0 ? Math.round((verifiedDocsCount / totalDocs) * 100) : (activeApp ? 25 : 0);
-  const docsNeedingAttention = documents.filter(d => d.status === 'REJECTED' || (d.is_mandatory && d.status === 'NOT_UPLOADED'));
+  const docsNeedingAttention = safeDocs.filter(d => d && (d.status === 'REJECTED' || (d.is_mandatory && d.status === 'NOT_UPLOADED')));
 
   // Calculate Next Step Text
   const getNextStep = () => {
     if (!activeApp) return { text: "Create an application to begin onboarding", link: null };
     if (activeApp.status === 'APPROVED') return { text: "Your onboarding is complete. Partner account active.", link: null };
     if (activeApp.status === 'REJECTED') return { text: "Application rejected. Review feedback comments.", link: null };
-    if (docsNeedingAttention.length > 0) return { text: `Upload required document: ${docsNeedingAttention[0].title || 'Pending file'}`, link: '/partner/documents' };
+    if (docsNeedingAttention.length > 0) return { text: `Upload required document: ${docsNeedingAttention[0]?.title || 'Pending file'}`, link: '/partner/documents' };
     if (activeApp.is_editable) return { text: "Submit your application for compliance review", action: 'submit' };
     return { text: "Awaiting compliance officer verification", link: null };
   };
@@ -198,166 +202,125 @@ const PartnerDashboard = () => {
       {/* Next Action Bar */}
       {activeApp && (
         <div className="p-3 mb-4 border border-dark bg-dark text-white rounded-1 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 font-mono">
-          <div className="d-flex align-items-center gap-3">
-            <span className="fw-bold px-2 py-0.5 border border-white text-uppercase" style={{ fontSize: '0.7rem' }}>
-              NEXT STEP
-            </span>
-            <span className="small">{nextStepInfo.text}</span>
+          <div className="d-flex align-items-center gap-2">
+            <span className="badge bg-white text-dark px-2 py-1 text-uppercase fw-bold">NEXT STEP</span>
+            <span className="small text-white">{nextStepInfo.text}</span>
           </div>
+
           {nextStepInfo.link && (
-            <Link to={nextStepInfo.link} className="btn btn-sm btn-ox-white font-mono text-uppercase text-nowrap">
-              CONTINUE →
+            <Link to={nextStepInfo.link} className="btn btn-sm btn-ox-white text-nowrap">
+              CONTINUE CHECKLIST →
             </Link>
           )}
+
           {nextStepInfo.action === 'submit' && (
-            <button onClick={handleSubmitApplication} disabled={submittingApp} className="btn btn-sm btn-ox-white font-mono text-uppercase text-nowrap">
-              {submittingApp ? 'SUBMITTING...' : 'SUBMIT NOW →'}
+            <button onClick={handleSubmitApplication} disabled={submittingApp} className="btn btn-sm btn-ox-white text-nowrap">
+              SUBMIT NOW →
             </button>
           )}
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-3 mb-4 border border-dark bg-dark text-white font-mono small rounded-1">
+        <div className="p-3 mb-4 border border-dark bg-dark text-white font-mono small">
           ERROR: {errorMsg}
         </div>
       )}
 
-      {/* Case 1: No Active Application */}
-      {!activeApp && (
-        <div className="p-5 border border-dark bg-white text-center my-4 rounded-1">
-          <div className="font-mono text-uppercase text-muted small fw-bold mb-2">YOUR JOURNEY HASN'T STARTED</div>
-          <h2 className="ox-section-title mb-2">CREATE AN APPLICATION TO BEGIN ONBOARDING</h2>
-          <p className="font-mono text-muted small mx-auto mb-4" style={{ maxWidth: 500 }}>
-            SELECT YOUR BUSINESS BLUEPRINT CATEGORY TO GENERATE COMPLIANCE CHECKLIST.
+      {/* Primary Onboarding Stepper */}
+      {activeApp ? (
+        <div className="mb-5">
+          <JourneyStepper status={activeApp.status} />
+        </div>
+      ) : (
+        /* Create New Application Card */
+        <div className="p-4 border border-dark bg-white rounded-1 mb-5">
+          <h2 className="ox-section-title mb-2">INITIALIZE PARTNER APPLICATION</h2>
+          <p className="font-mono text-muted small mb-4">
+            SELECT A BLUEPRINT CATEGORY BELOW TO GENERATE YOUR ONBOARDING COMPLIANCE CHECKLIST.
           </p>
 
-          <form onSubmit={handleCreateApplication} className="mx-auto" style={{ maxWidth: 420 }}>
-            <div className="mb-3 text-start">
-              <label className="font-mono text-uppercase small fw-bold mb-1 d-block" style={{ fontSize: '0.75rem' }}>BLUEPRINT CATEGORY</label>
+          <form onSubmit={handleCreateApplication} className="row g-3 align-items-end">
+            <div className="col-md-8">
+              <label className="font-mono text-uppercase small fw-bold text-dark mb-1 d-block">
+                PARTNER BLUEPRINT CATEGORY
+              </label>
               <select
                 className="form-select font-mono"
                 value={selectedBlueprint}
                 onChange={(e) => setSelectedBlueprint(e.target.value)}
                 required
               >
-                <option value="">-- SELECT PARTNER BLUEPRINT --</option>
-                {blueprints.map((bp) => (
+                <option value="">-- Select Partner Blueprint --</option>
+                {Array.isArray(blueprints) && blueprints.map((bp) => (
                   <option key={bp.id} value={bp.id}>
                     {bp.title} ({bp.partner_type_code})
                   </option>
                 ))}
               </select>
             </div>
-            <button
-              type="submit"
-              disabled={creatingApp}
-              className="btn btn-ox-black font-mono text-uppercase w-100 py-2.5"
-            >
-              {creatingApp ? 'INITIALIZING...' : 'START APPLICATION →'}
-            </button>
+
+            <div className="col-md-4">
+              <button
+                type="submit"
+                disabled={creatingApp}
+                className="btn btn-ox-black font-mono text-uppercase w-100 py-2"
+              >
+                {creatingApp ? 'INITIALIZING...' : 'START ONBOARDING →'}
+              </button>
+            </div>
           </form>
         </div>
       )}
 
-      {/* Case 2: Active Application Exists */}
+      {/* Two Column Layout: Checklist Cards & Activity Log */}
       {activeApp && (
-        <>
-          {/* Signature Journey Stepper */}
-          <div className="p-4 mb-4 border border-dark bg-white rounded-1">
-            <JourneyStepper status={activeApp.status} />
-          </div>
-
-          {/* Documents Needing Attention */}
-          <div className="mb-5">
-            <div className="d-flex align-items-center justify-content-between mb-3 border-bottom border-dark pb-2">
+        <div className="row g-4">
+          {/* Column 1: Document Checklist */}
+          <div className="col-lg-8">
+            <div className="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom border-dark">
               <div>
-                <h3 className="ox-section-title mb-0">
-                  <ScrollFloat
-                    animationDuration={1}
-                    ease='back.inOut(2)'
-                    scrollStart='center bottom+=50%'
-                    scrollEnd='bottom bottom-=40%'
-                    stagger={0.03}
-                  >
-                    WHAT NEEDS YOUR ATTENTION?
-                  </ScrollFloat>
-                </h3>
+                <h2 className="ox-section-title mb-0">REQUIRED COMPLIANCE DOCUMENTS</h2>
+                <div className="font-mono text-muted small">
+                  SUBMIT MANDATORY LEGAL & REGULATORY CERTIFICATES
+                </div>
               </div>
-              <Link to="/partner/documents" className="btn btn-sm btn-ox-white font-mono text-uppercase">
-                CHECKLIST ({documents.length}) →
+
+              <Link to="/partner/documents" className="font-mono small text-dark fw-bold text-decoration-none">
+                VIEW ALL ({totalDocs}) →
               </Link>
             </div>
 
-            {docsNeedingAttention.length === 0 ? (
-              <div className="p-4 border border-dark bg-light font-mono text-muted text-center small rounded-1">
-                NOTHING NEEDS YOUR ATTENTION. You're completely caught up.
+            {safeDocs.length === 0 ? (
+              <div className="p-4 border border-dark bg-white text-center font-mono text-muted">
+                NO COMPLIANCE DOCUMENTS ATTACHED YET.
               </div>
             ) : (
-              <div className="row g-3">
-                {docsNeedingAttention.slice(0, 3).map((docItem) => (
-                  <div key={docItem.id} className="col-md-6 col-lg-4">
-                    <DocumentCard
-                      documentItem={docItem}
-                      onUploadSuccess={handleDocumentUpload}
-                      isEditable={activeApp.is_editable}
-                    />
-                  </div>
+              <div className="d-flex flex-column gap-3">
+                {safeDocs.map((docItem) => (
+                  <DocumentCard
+                    key={docItem.id}
+                    documentItem={docItem}
+                    onUpload={(file) => handleDocumentUpload(docItem, file)}
+                    isEditable={activeApp.is_editable}
+                  />
                 ))}
               </div>
             )}
           </div>
 
-          {/* Grid Row: Application Metadata & Activity Timeline */}
-          <div className="row g-4">
-            <div className="col-lg-6">
-              <div className="p-4 border border-dark bg-white h-100 rounded-1">
-                <div className="d-flex align-items-center justify-content-between mb-3 border-bottom border-dark pb-2">
-                  <h4 className="font-mono fw-bold text-uppercase small text-dark mb-0">
-                    APPLICATION METADATA
-                  </h4>
-                  <Link to="/partner/application" className="font-mono small text-dark fw-bold text-uppercase">
-                    EDIT →
-                  </Link>
-                </div>
-
-                <div className="row g-3 font-mono">
-                  <div className="col-6">
-                    <div className="text-muted small">BUSINESS NAME</div>
-                    <div className="fw-bold text-dark">{activeApp.business_name || 'N/A'}</div>
-                  </div>
-                  <div className="col-6">
-                    <div className="text-muted small">CONTACT EMAIL</div>
-                    <div className="fw-bold text-dark">{activeApp.contact_email || 'N/A'}</div>
-                  </div>
-                  <div className="col-6">
-                    <div className="text-muted small">BLUEPRINT</div>
-                    <div className="fw-bold text-dark">{activeApp.blueprint_details?.title}</div>
-                  </div>
-                  <div className="col-6">
-                    <div className="text-muted small">STATE</div>
-                    <div className="fw-bold text-dark">{activeApp.is_editable ? 'EDITABLE (DRAFT)' : 'LOCKED FOR REVIEW'}</div>
-                  </div>
-                </div>
-              </div>
+          {/* Column 2: Audit Timeline */}
+          <div className="col-lg-4">
+            <div className="pb-3 mb-3 border-bottom border-dark">
+              <h2 className="ox-section-title mb-0">AUDIT TIMELINE</h2>
+              <div className="font-mono text-muted small">IMMUTABLE ACTIVITY LOG</div>
             </div>
 
-            <div className="col-lg-6">
-              <div className="p-4 border border-dark bg-white h-100 rounded-1">
-                <div className="d-flex align-items-center justify-content-between mb-3 border-bottom border-dark pb-2">
-                  <h4 className="font-mono fw-bold text-uppercase small text-dark mb-0">
-                    TIMELINE RECENT ACTIVITY
-                  </h4>
-                  <Link to="/partner/activity" className="font-mono small text-dark fw-bold text-uppercase">
-                    FULL LOG →
-                  </Link>
-                </div>
-
-                <ActivityTimeline activities={activities.slice(0, 3)} />
-              </div>
+            <div className="p-3 border border-dark bg-white rounded-1">
+              <ActivityTimeline activities={Array.isArray(activities) ? activities : []} />
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

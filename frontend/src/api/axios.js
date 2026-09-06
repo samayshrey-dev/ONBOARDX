@@ -155,6 +155,14 @@ const handleMockFallback = (config) => {
         ]
       }
     ];
+
+    const bpMatch = url.match(/\/onboarding\/blueprints\/(\d+)\/?/);
+    if (bpMatch) {
+      const bpId = parseInt(bpMatch[1], 10);
+      const foundBp = mockBlueprints.find(b => b.id === bpId) || mockBlueprints[0];
+      return Promise.resolve({ data: foundBp, status: 200, statusText: 'OK', headers: {}, config });
+    }
+
     return Promise.resolve({ data: mockBlueprints, status: 200, statusText: 'OK', headers: {}, config });
   }
 
@@ -172,6 +180,7 @@ const handleMockFallback = (config) => {
         created_at: '2026-09-06T08:30:00Z',
         submitted_at: '2026-09-06T09:15:00Z',
         completed_percent: 75,
+        is_editable: false,
         checklist_items: [
           { id: 1001, document_name: 'GST Registration Certificate', is_mandatory: true, order: 1, document: { id: 501, file_name: 'gst_certificate_apex.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'GSTIN verified with government portal.' } },
           { id: 1002, document_name: 'Company PAN Card', is_mandatory: true, order: 2, document: { id: 502, file_name: 'pan_card_apex.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Valid entity PAN.' } },
@@ -191,6 +200,7 @@ const handleMockFallback = (config) => {
         created_at: '2026-09-05T14:20:00Z',
         submitted_at: '2026-09-05T16:00:00Z',
         completed_percent: 100,
+        is_editable: false,
         checklist_items: [
           { id: 2001, document_name: 'Trade License / Shops & Establishment Certificate', is_mandatory: true, order: 1, document: { id: 601, file_name: 'trade_license_vanguard.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Verified valid till 2028.' } },
           { id: 2002, document_name: 'Franchise Agreement Deed', is_mandatory: true, order: 2, document: { id: 602, file_name: 'franchise_deed_signed.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Duly signed and notarized.' } },
@@ -209,9 +219,17 @@ const handleMockFallback = (config) => {
         created_at: '2026-09-04T10:00:00Z',
         submitted_at: '2026-09-04T11:30:00Z',
         completed_percent: 100,
+        is_editable: false,
         checklist_items: []
       }
     ];
+
+    const appMatch = url.match(/\/onboarding\/applications\/(\d+)\/?/);
+    if (appMatch) {
+      const appId = parseInt(appMatch[1], 10);
+      const foundApp = apps.find(a => a.id === appId) || apps[0];
+      return Promise.resolve({ data: foundApp, status: 200, statusText: 'OK', headers: {}, config });
+    }
 
     return Promise.resolve({ data: apps, status: 200, statusText: 'OK', headers: {}, config });
   }
@@ -219,9 +237,9 @@ const handleMockFallback = (config) => {
   if (url.includes('documents/application/')) {
     return Promise.resolve({
       data: [
-        { id: 501, file_name: 'gst_certificate_apex.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'GSTIN verified with government portal.', uploaded_at: '2026-09-06T09:10:00Z' },
-        { id: 502, file_name: 'pan_card_apex.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Valid entity PAN.', uploaded_at: '2026-09-06T09:12:00Z' },
-        { id: 503, file_name: 'cancelled_cheque_mumbai.pdf', file: '#', status: 'PENDING', reviewer_comment: null, uploaded_at: '2026-09-06T09:14:00Z' }
+        { id: 501, file_name: 'gst_certificate_apex.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'GSTIN verified with government portal.', uploaded_at: '2026-09-06T09:10:00Z', title: 'GST Registration Certificate', is_mandatory: true },
+        { id: 502, file_name: 'pan_card_apex.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Valid entity PAN.', uploaded_at: '2026-09-06T09:12:00Z', title: 'Company PAN Card', is_mandatory: true },
+        { id: 503, file_name: 'cancelled_cheque_mumbai.pdf', file: '#', status: 'PENDING', reviewer_comment: null, uploaded_at: '2026-09-06T09:14:00Z', title: 'Cancelled Cheque & Bank Account Details', is_mandatory: true }
       ],
       status: 200,
       statusText: 'OK',

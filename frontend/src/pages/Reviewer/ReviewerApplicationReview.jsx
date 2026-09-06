@@ -30,20 +30,21 @@ const ReviewerApplicationReview = () => {
     setErrorMsg('');
     try {
       const appRes = await axios.get(`/onboarding/applications/${appId}/`);
-      setApplication(appRes.data);
+      const appData = Array.isArray(appRes.data) ? appRes.data[0] : appRes.data;
+      setApplication(appData);
 
       const docsRes = await axios.get(`/documents/application/${appId}/`);
-      const docsList = docsRes.data || [];
+      const docsList = Array.isArray(docsRes.data) ? docsRes.data : [];
       setDocuments(docsList);
 
       if (docsList.length > 0) {
-        const pendingDoc = docsList.find(d => d.status === 'UPLOADED' || d.status === 'UNDER_REVIEW') || docsList[0];
+        const pendingDoc = docsList.find(d => d && (d.status === 'UPLOADED' || d.status === 'UNDER_REVIEW')) || docsList[0];
         setActiveDoc(pendingDoc);
-        setReviewerComment(pendingDoc.reviewer_comment || '');
+        setReviewerComment(pendingDoc?.reviewer_comment || '');
       }
 
       const actRes = await axios.get(`/activity/applications/${appId}/`);
-      setActivities(actRes.data || []);
+      setActivities(Array.isArray(actRes.data) ? actRes.data : []);
     } catch (err) {
       console.error("Error fetching application for review:", err);
       setErrorMsg(err.response?.data?.detail || "Failed to load application for review.");

@@ -20,12 +20,13 @@ const PartnerDocuments = () => {
     setErrorMsg('');
     try {
       const appsRes = await axios.get('/onboarding/applications/');
-      const appsList = appsRes.data.results || appsRes.data || [];
+      const appsList = Array.isArray(appsRes.data) ? appsRes.data : (appsRes.data?.results && Array.isArray(appsRes.data.results) ? appsRes.data.results : []);
       if (appsList.length > 0) {
         const app = appsList[0];
         setActiveApp(app);
         const docsRes = await axios.get(`/documents/application/${app.id}/`);
-        setDocuments(docsRes.data || []);
+        const docsList = Array.isArray(docsRes.data) ? docsRes.data : [];
+        setDocuments(docsList);
       }
     } catch (err) {
       console.error("Error fetching documents:", err);
@@ -48,34 +49,29 @@ const PartnerDocuments = () => {
       });
       setSuccessMsg(`Uploaded "${file.name}" successfully!`);
       const docsRes = await axios.get(`/documents/application/${activeApp.id}/`);
-      setDocuments(docsRes.data || []);
+      const docsList = Array.isArray(docsRes.data) ? docsRes.data : [];
+      setDocuments(docsList);
     } catch (err) {
       throw err;
     }
   };
 
-  const filteredDocuments = documents.filter((doc) => {
+  const safeDocs = Array.isArray(documents) ? documents : [];
+
+  const filteredDocuments = safeDocs.filter((doc) => {
+    if (!doc) return false;
     if (filterStatus === 'ALL') return true;
     if (filterStatus === 'APPROVED') return doc.status === 'APPROVED';
     if (filterStatus === 'IN_REVIEW') return doc.status === 'UPLOADED' || doc.status === 'UNDER_REVIEW';
-    if (filterStatus === 'ATTENTION') return doc.status === 'REJECTED' || (doc.is_mandatory && doc.status === 'NOT_UPLOADED');
-    if (filterStatus === 'WAITING') return doc.status === 'NOT_UPLOADED';
+    if (filterStatus === 'REJECTED') return doc.status === 'REJECTED';
+    if (filterStatus === 'PENDING') return doc.status === 'PENDING' || doc.status === 'NOT_UPLOADED';
     return true;
   });
 
   if (loading) {
     return (
       <div className="p-5 font-mono text-muted text-center">
-        LOADING COMPLIANCE DOCUMENTS...
-      </div>
-    );
-  }
-
-  if (!activeApp) {
-    return (
-      <div className="p-5 border border-dark bg-white text-center my-4 rounded-1">
-        <h3 className="ox-section-title mb-2">NO ACTIVE APPLICATION</h3>
-        <p className="font-mono text-muted small mb-0">Create an onboarding application to view checklist requirements.</p>
+        LOADING COMPLIANCE DOCUMENT CHECKLIST...
       </div>
     );
   }
@@ -85,32 +81,13 @@ const PartnerDocuments = () => {
       {/* Header Banner */}
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 pb-3 border-bottom border-dark">
         <div>
-          <div className="d-flex align-items-center gap-2 mb-1">
-            <h2 className="ox-section-title mb-0">DOCUMENT CHECKLIST</h2>
-            <StatusBadge status={activeApp.status} />
-          </div>
+          <h1 className="ox-section-title mb-1">COMPLIANCE CHECKLIST</h1>
           <p className="font-mono text-muted small mb-0">
-            BLUEPRINT REQUIREMENTS FOR {activeApp.blueprint_details?.title?.toUpperCase()}.
+            UPLOAD AND TRACK VERIFICATION STATUS FOR ALL MANDATORY REGULATORY CERTIFICATES.
           </p>
         </div>
 
-        {/* Filter Buttons */}
-        <div className="d-flex flex-wrap gap-2">
-          {[
-            { key: 'ALL', label: 'ALL REQUIREMENTS' },
-            { key: 'ATTENTION', label: '! NEEDS ATTENTION' },
-            { key: 'IN_REVIEW', label: '◐ IN REVIEW' },
-            { key: 'APPROVED', label: '● VERIFIED' },
-          ].map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setFilterStatus(f.key)}
-              className={`btn btn-sm font-mono text-uppercase ${filterStatus === f.key ? 'btn-ox-black' : 'btn-ox-white'}`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        {activeApp && <StatusBadge status={activeApp.status} />}
       </div>
 
       {errorMsg && (
@@ -125,21 +102,43 @@ const PartnerDocuments = () => {
         </div>
       )}
 
-      {/* Grid Layout of Document Cards */}
-      {filteredDocuments.length === 0 ? (
-        <div className="p-5 border border-dark bg-white font-mono text-center text-muted small rounded-1">
-          NO DOCUMENTS YET. Upload your first required document to continue.
+      {/* Filter Tabs */}
+      <div className="d-flex flex-wrap gap-2 mb-4">
+        {[
+          { key: 'ALL', label: `ALL DOCUMENTS (${safeDocs.length})` },
+          { key: 'PENDING', label: 'PENDING UPLOAD' },
+          { key: 'IN_REVIEW', label: 'UNDER REVIEW' },
+          { key: 'APPROVED', label: 'APPROVED' },
+          { key: 'REJECTED', label: 'REJECTED' },
+        ].map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setFilterStatus(f.key)}
+            className={`btn btn-sm font-mono text-uppercase ${filterStatus === f.key ? 'btn-ox-black' : 'btn-ox-white'}`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Documents List */}
+      {!activeApp ? (
+        <div className="p-4 border border-dark bg-white text-center font-mono text-muted">
+          NO ACTIVE APPLICATION FOUND. PLEASE START AN APPLICATION ON THE JOURNEY PAGE.
+        </div>
+      ) : filteredDocuments.length === 0 ? (
+        <div className="p-4 border border-dark bg-white text-center font-mono text-muted">
+          NO DOCUMENTS MATCH THE SELECTED FILTER.
         </div>
       ) : (
-        <div className="row g-4">
+        <div className="d-flex flex-column gap-3">
           {filteredDocuments.map((docItem) => (
-            <div key={docItem.id} className="col-12 col-md-6 col-xl-4">
-              <DocumentCard
-                documentItem={docItem}
-                onUploadSuccess={handleDocumentUpload}
-                isEditable={activeApp.is_editable}
-              />
-            </div>
+            <DocumentCard
+              key={docItem.id}
+              documentItem={docItem}
+              onUpload={(file) => handleDocumentUpload(docItem, file)}
+              isEditable={activeApp.is_editable}
+            />
           ))}
         </div>
       )}

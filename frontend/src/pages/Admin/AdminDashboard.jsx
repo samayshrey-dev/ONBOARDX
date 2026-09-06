@@ -59,11 +59,11 @@ const AdminDashboard = () => {
     setErrorMsg('');
     try {
       const appsRes = await axios.get('/onboarding/applications/');
-      const appsList = appsRes.data.results || appsRes.data || [];
+      const appsList = Array.isArray(appsRes.data) ? appsRes.data : (appsRes.data?.results && Array.isArray(appsRes.data.results) ? appsRes.data.results : []);
       setApplications(appsList);
 
       const bpRes = await axios.get('/onboarding/blueprints/');
-      const bpList = bpRes.data.results || bpRes.data || [];
+      const bpList = Array.isArray(bpRes.data) ? bpRes.data : (bpRes.data?.results && Array.isArray(bpRes.data.results) ? bpRes.data.results : []);
       setBlueprints(bpList);
       if (bpList.length > 0) {
         setSelectedBlueprint(bpList[0]);
@@ -82,22 +82,26 @@ const AdminDashboard = () => {
     setSuccessMsg('');
     try {
       const docsRes = await axios.get(`/documents/application/${app.id}/`);
-      setAppDocuments(docsRes.data || []);
+      setAppDocuments(Array.isArray(docsRes.data) ? docsRes.data : []);
 
       const actRes = await axios.get(`/activity/applications/${app.id}/`);
-      setAppActivities(actRes.data || []);
+      setAppActivities(Array.isArray(actRes.data) ? actRes.data : []);
     } catch (err) {
       console.error("Error inspecting application:", err);
     }
   };
 
-  const totalApps = applications.length;
-  const pendingReviewApps = applications.filter(a => a.status === 'SUBMITTED' || a.status === 'UNDER_REVIEW').length;
-  const awaitingApprovalApps = applications.filter(a => a.status === 'PENDING_APPROVAL').length;
-  const approvedApps = applications.filter(a => a.status === 'APPROVED').length;
-  const rejectedApps = applications.filter(a => a.status === 'REJECTED' || a.status === 'CORRECTION_REQUIRED').length;
+  const safeApps = Array.isArray(applications) ? applications : [];
+  const safeBlueprints = Array.isArray(blueprints) ? blueprints : [];
 
-  const filteredApps = applications.filter((app) => {
+  const totalApps = safeApps.length;
+  const pendingReviewApps = safeApps.filter(a => a && (a.status === 'SUBMITTED' || a.status === 'UNDER_REVIEW')).length;
+  const awaitingApprovalApps = safeApps.filter(a => a && a.status === 'PENDING_APPROVAL').length;
+  const approvedApps = safeApps.filter(a => a && a.status === 'APPROVED').length;
+  const rejectedApps = safeApps.filter(a => a && (a.status === 'REJECTED' || a.status === 'CORRECTION_REQUIRED')).length;
+
+  const filteredApps = safeApps.filter((app) => {
+    if (!app) return false;
     const matchesSearch =
       (app.business_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (app.partner_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -19,7 +19,8 @@ const ReviewerDashboard = () => {
     setErrorMsg('');
     try {
       const res = await axios.get('/onboarding/reviewer/queue/');
-      setQueueApplications(res.data.results || res.data || []);
+      const queueList = Array.isArray(res.data) ? res.data : (res.data?.results && Array.isArray(res.data.results) ? res.data.results : []);
+      setQueueApplications(queueList);
     } catch (err) {
       console.error("Error fetching review queue:", err);
       setErrorMsg(err.response?.data?.detail || "Failed to load review queue.");
@@ -28,7 +29,10 @@ const ReviewerDashboard = () => {
     }
   };
 
-  const filteredQueue = queueApplications.filter((app) => {
+  const safeQueue = Array.isArray(queueApplications) ? queueApplications : [];
+
+  const filteredQueue = safeQueue.filter((app) => {
+    if (!app) return false;
     if (filterStatus === 'ALL') return true;
     return app.status === filterStatus;
   });
@@ -77,83 +81,59 @@ const ReviewerDashboard = () => {
         </div>
       )}
 
-      {/* Workload Header Callout */}
-      <div className="p-3 mb-4 border border-dark bg-white rounded-1 d-flex align-items-center justify-content-between font-mono">
-        <div>
-          <span className="fw-bold text-dark me-2">● ACTIVE WORKLOAD:</span>
-          <span className="text-muted">{filteredQueue.length} APPLICATION(S) AWAITING VERIFICATION.</span>
-        </div>
-        <button onClick={fetchReviewQueue} className="btn btn-sm btn-ox-white font-mono text-uppercase px-3">
-          REFRESH QUEUE →
-        </button>
-      </div>
-
-      {/* Review Applications List */}
+      {/* Applications Queue Table */}
       {filteredQueue.length === 0 ? (
         <div className="p-5 border border-dark bg-white text-center font-mono text-muted">
-          NOTHING NEEDS YOUR ATTENTION. YOU'RE COMPLETELY CAUGHT UP.
+          NO APPLICATIONS PENDING COMPLIANCE REVIEW.
         </div>
       ) : (
-        <div className="d-flex flex-column gap-3">
-          {filteredQueue.map((app) => {
-            const items = app.checklist_items || [];
-            const totalMandatory = items.filter(i => i.is_mandatory).length;
-            const verifiedCount = items.filter(i => i.status === 'VERIFIED' || i.status === 'APPROVED').length;
-
-            return (
-              <div
-                key={app.id}
-                className="p-4 border border-dark bg-white rounded-1 transition-all"
-              >
-                <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-                  <div className="d-flex align-items-start gap-3">
-                    <div
-                      className="d-flex align-items-center justify-content-center text-white font-mono fw-bold flex-shrink-0 mt-1"
-                      style={{ width: 40, height: 40, backgroundColor: '#000000', borderRadius: '2px' }}
-                    >
-                      ●
-                    </div>
-                    <div>
-                      <div className="d-flex align-items-center gap-2 mb-1">
-                        <h4 className="font-mono fw-bold text-dark mb-0 fs-5 text-uppercase">
-                          {app.business_name || app.partner_name}
-                        </h4>
-                        <span className="font-mono small border border-dark px-2 py-0.5">
-                          {app.application_number}
-                        </span>
-                      </div>
-                      <div className="font-mono text-muted small">
-                        BLUEPRINT: <strong className="text-dark">{app.blueprint_details?.title || 'PARTNER BLUEPRINT'}</strong> • SUBMITTED: {new Date(app.submitted_at || app.updated_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="d-flex align-items-center gap-4 font-mono">
-                    <div>
-                      <div className="text-muted small">CHECKLIST VERIFIED</div>
-                      <div className="fw-bold text-dark">
-                        {verifiedCount} / {totalMandatory || items.length} ITEMS
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="text-muted small">REVIEW STATE</div>
+        <div className="border border-dark bg-white rounded-1 overflow-hidden">
+          <div className="table-responsive">
+            <table className="table table-hover align-middle mb-0 font-mono small">
+              <thead className="bg-dark text-white text-uppercase" style={{ fontSize: '0.75rem' }}>
+                <tr>
+                  <th className="py-3 px-3">APPLICATION REF</th>
+                  <th className="py-3 px-3">BUSINESS NAME</th>
+                  <th className="py-3 px-3">PARTNER NAME</th>
+                  <th className="py-3 px-3">BLUEPRINT</th>
+                  <th className="py-3 px-3">STATUS</th>
+                  <th className="py-3 px-3 text-end">ACTION</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredQueue.map((app) => (
+                  <tr key={app.id} className="cursor-pointer" onClick={() => navigate(`/reviewer/application/${app.id}`)}>
+                    <td className="py-3 px-3 fw-bold text-dark">
+                      {app.application_number}
+                    </td>
+                    <td className="py-3 px-3 text-dark fw-bold">
+                      {app.business_name || 'N/A'}
+                    </td>
+                    <td className="py-3 px-3 text-muted">
+                      {app.partner_name || 'Partner'}
+                    </td>
+                    <td className="py-3 px-3 text-muted">
+                      {app.blueprint_name || 'Standard Blueprint'}
+                    </td>
+                    <td className="py-3 px-3">
                       <StatusBadge status={app.status} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <button
-                      onClick={() => navigate(`/reviewer/application/${app.id}`)}
-                      className="btn btn-ox-black font-mono text-uppercase px-4 py-2"
-                    >
-                      REVIEW APPLICATION →
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                    </td>
+                    <td className="py-3 px-3 text-end">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/reviewer/application/${app.id}`);
+                        }}
+                        className="btn btn-sm btn-ox-black font-mono text-uppercase px-3 py-1"
+                      >
+                        REVIEW DOCS →
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
