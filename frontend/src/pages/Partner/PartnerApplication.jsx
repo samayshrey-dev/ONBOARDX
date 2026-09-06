@@ -30,7 +30,7 @@ const PartnerApplication = () => {
     setErrorMsg('');
     try {
       const appsRes = await axios.get('/onboarding/applications/');
-      const appsList = appsRes.data.results || appsRes.data || [];
+      const appsList = Array.isArray(appsRes.data) ? appsRes.data : (appsRes.data?.results && Array.isArray(appsRes.data.results) ? appsRes.data.results : []);
       if (appsList.length > 0) {
         const app = appsList[0];
         setActiveApp(app);

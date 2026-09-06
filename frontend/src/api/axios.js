@@ -127,6 +127,20 @@ const handleMockFallback = (config) => {
     });
   }
 
+  if (url.includes('auth/password-reset/')) {
+    return Promise.resolve({
+      data: {
+        detail: 'Password reset email sent with cryptographic token.',
+        uidb64: 'MQ',
+        token: 'demo-reset-token-2026-xyz'
+      },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config
+    });
+  }
+
   if (url.includes('onboarding/blueprints/')) {
     const mockBlueprints = [
       {
