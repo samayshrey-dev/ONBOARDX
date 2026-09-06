@@ -21,7 +21,7 @@ const GridScan = ({
 }) => {
   const canvasRef = useRef(null);
 
-  // Eye-soothing color fallback mapper if legacy harsh neon colors were passed
+  // Eye-soothing color fallback mapper
   const safeLinesColor = (linesColor === '#2F293A' || !linesColor) ? '#E2E8F0' : linesColor;
   const safeScanColor = (scanColor === '#FF9FFC' || !scanColor) ? '#94A3B8' : scanColor;
   const safeOpacity = scanOpacity > 0.15 ? 0.08 : scanOpacity;
@@ -31,17 +31,23 @@ const GridScan = ({
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     let animationFrameId;
     let scanY = 0;
 
     const handleResize = () => {
-      const parent = canvas.parentElement;
-      if (parent) {
-        canvas.width = parent.clientWidth || window.innerWidth;
-        canvas.height = parent.clientHeight || window.innerHeight;
-      } else {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+      try {
+        const parent = canvas.parentElement;
+        if (parent) {
+          canvas.width = parent.clientWidth || window.innerWidth || 1024;
+          canvas.height = parent.clientHeight || window.innerHeight || 768;
+        } else {
+          canvas.width = window.innerWidth || 1024;
+          canvas.height = window.innerHeight || 768;
+        }
+      } catch (e) {
+        console.warn('GridScan resize error:', e);
       }
     };
 
@@ -49,51 +55,65 @@ const GridScan = ({
     handleResize();
 
     const render = () => {
-      const width = canvas.width;
-      const height = canvas.height;
-      ctx.clearRect(0, 0, width, height);
+      try {
+        const width = canvas.width || window.innerWidth || 1024;
+        const height = canvas.height || window.innerHeight || 768;
 
-      // Subtle architectural grid cell size
-      const cellSize = Math.max(28, Math.min(width, height) * (gridScale || 0.06));
-      const cols = Math.ceil(width / cellSize) + 1;
-      const rows = Math.ceil(height / cellSize) + 1;
+        if (!width || !height || isNaN(width) || isNaN(height)) {
+          animationFrameId = requestAnimationFrame(render);
+          return;
+        }
 
-      // Slow, smooth ambient sweep motion
-      scanY = (scanY + 0.8 * (1 + sensitivity * 0.2)) % (height + 150);
+        ctx.clearRect(0, 0, width, height);
 
-      // Draw Soft Subtle Grid Lines
-      ctx.lineWidth = lineThickness;
-      ctx.strokeStyle = safeLinesColor;
+        // Subtle architectural grid cell size
+        const cellSize = Math.max(28, Math.min(width, height) * (gridScale || 0.06));
+        const cols = Math.ceil(width / cellSize) + 1;
+        const rows = Math.ceil(height / cellSize) + 1;
 
-      for (let i = 0; i <= cols; i++) {
-        const x = i * cellSize;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
+        // Slow, smooth ambient sweep motion
+        scanY = (scanY + 0.8 * (1 + (sensitivity || 0.15) * 0.2)) % (height + 150);
+
+        // Draw Soft Subtle Grid Lines
+        ctx.lineWidth = lineThickness || 0.75;
+        ctx.strokeStyle = safeLinesColor;
+
+        for (let i = 0; i <= cols; i++) {
+          const x = i * cellSize;
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+
+        for (let j = 0; j <= rows; j++) {
+          const y = j * cellSize;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+
+        // Soft Ambient Light Trace with safety bounds
+        const beamHeight = 60 * (scanSoftness || 2);
+        const yStart = Math.max(-200, Math.min(height + 200, scanY - beamHeight));
+        const yEnd = Math.max(-200, Math.min(height + 300, scanY + beamHeight));
+
+        if (isFinite(yStart) && isFinite(yEnd) && yEnd > yStart) {
+          const gradient = ctx.createLinearGradient(0, yStart, 0, yEnd);
+          gradient.addColorStop(0, 'rgba(255,255,255,0)');
+          gradient.addColorStop(0.5, safeScanColor);
+          gradient.addColorStop(1, 'rgba(255,255,255,0)');
+
+          ctx.save();
+          ctx.globalAlpha = safeOpacity;
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, yStart, width, Math.max(10, yEnd - yStart));
+          ctx.restore();
+        }
+      } catch (err) {
+        console.warn('GridScan render exception caught safely:', err);
       }
-
-      for (let j = 0; j <= rows; j++) {
-        const y = j * cellSize;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
-
-      // Soft Ambient Light Trace (Zero glare, smooth gradient sweep)
-      const beamHeight = 60 * (scanSoftness || 2);
-      const gradient = ctx.createLinearGradient(0, scanY - beamHeight, 0, scanY + beamHeight);
-      
-      gradient.addColorStop(0, 'rgba(255,255,255,0)');
-      gradient.addColorStop(0.5, safeScanColor);
-      gradient.addColorStop(1, 'rgba(255,255,255,0)');
-
-      ctx.save();
-      ctx.globalAlpha = safeOpacity;
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, scanY - beamHeight, width, beamHeight * 2);
-      ctx.restore();
 
       animationFrameId = requestAnimationFrame(render);
     };
@@ -102,7 +122,7 @@ const GridScan = ({
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
   }, [sensitivity, lineThickness, safeLinesColor, gridScale, safeScanColor, safeOpacity, scanSoftness]);
 
