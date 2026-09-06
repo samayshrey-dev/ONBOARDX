@@ -153,6 +153,30 @@ const handleMockFallback = (config) => {
           { id: 202, document_name: 'Franchise Agreement Deed', is_mandatory: true, order: 2 },
           { id: 203, document_name: 'Identity Proof of Designated Directors (Aadhaar/Passport)', is_mandatory: true, order: 3 }
         ]
+      },
+      {
+        id: 3,
+        title: 'Hardware & Energy Supplier Blueprint',
+        partner_type_code: 'HARDWARE',
+        description: 'Compliance verification workflow for industrial hardware suppliers & clean energy developers.',
+        is_active: true,
+        requirements: [
+          { id: 301, document_name: 'Industrial License & Safety Clearance', is_mandatory: true, order: 1 },
+          { id: 302, document_name: 'GST Registration Certificate', is_mandatory: true, order: 2 },
+          { id: 303, document_name: 'ISO 9001 Quality Certification', is_mandatory: false, order: 3 }
+        ]
+      },
+      {
+        id: 4,
+        title: 'IT Services & Cloud Partner Blueprint',
+        partner_type_code: 'IT_SERVICES',
+        description: 'Security & compliance verification blueprint for enterprise software vendors and cloud integrators.',
+        is_active: true,
+        requirements: [
+          { id: 401, document_name: 'SOC2 Type II / ISO 27001 Security Audit Report', is_mandatory: true, order: 1 },
+          { id: 402, document_name: 'Non-Disclosure & Data Processing Agreement', is_mandatory: true, order: 2 },
+          { id: 403, document_name: 'Company PAN Card & Tax Residency Certificate', is_mandatory: true, order: 3 }
+        ]
       }
     ];
 
@@ -204,7 +228,7 @@ const handleMockFallback = (config) => {
         checklist_items: [
           { id: 2001, document_name: 'Trade License / Shops & Establishment Certificate', is_mandatory: true, order: 1, document: { id: 601, file_name: 'trade_license_vanguard.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Verified valid till 2028.' } },
           { id: 2002, document_name: 'Franchise Agreement Deed', is_mandatory: true, order: 2, document: { id: 602, file_name: 'franchise_deed_signed.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Duly signed and notarized.' } },
-          { id: 2003, document_name: 'Identity Proof of Designated Directors (Aadhaar/Passport)', is_mandatory: true, order: 3, document: { id: 603, file_name: 'directors_aadhaar_docs.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Identity checks clear.' } }
+          { id: 2003, document_name: 'Identity Proof of Designated Directors', is_mandatory: true, order: 3, document: { id: 603, file_name: 'directors_aadhaar_docs.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Identity checks clear.' } }
         ]
       },
       {
@@ -221,6 +245,109 @@ const handleMockFallback = (config) => {
         completed_percent: 100,
         is_editable: false,
         checklist_items: []
+      },
+      {
+        id: 4,
+        application_number: 'APP-2026-3392',
+        partner: 6,
+        partner_name: 'Aarav Kulkarni',
+        business_name: 'Maharashtra Freight Carriers Pvt Ltd',
+        blueprint: 1,
+        blueprint_name: 'Standard Enterprise Vendor Blueprint',
+        status: 'SUBMITTED',
+        created_at: '2026-09-06T06:10:00Z',
+        submitted_at: '2026-09-06T07:45:00Z',
+        completed_percent: 50,
+        is_editable: false,
+        checklist_items: [
+          { id: 4001, document_name: 'GST Registration Certificate', is_mandatory: true, order: 1, document: { id: 701, file_name: 'gst_maharashtra_freight.pdf', file: '#', status: 'UPLOADED', reviewer_comment: null } },
+          { id: 4002, document_name: 'Company PAN Card', is_mandatory: true, order: 2, document: { id: 702, file_name: 'pan_maharashtra_freight.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Entity PAN valid.' } }
+        ]
+      },
+      {
+        id: 5,
+        application_number: 'APP-2026-4481',
+        partner: 7,
+        partner_name: 'Priya Sundaram',
+        business_name: 'Bharat Green Energy Solutions LLP',
+        blueprint: 3,
+        blueprint_name: 'Hardware & Energy Supplier Blueprint',
+        status: 'CORRECTION_REQUIRED',
+        created_at: '2026-09-03T11:00:00Z',
+        submitted_at: '2026-09-03T14:30:00Z',
+        completed_percent: 40,
+        is_editable: true,
+        checklist_items: [
+          { id: 5001, document_name: 'Industrial License & Safety Clearance', is_mandatory: true, order: 1, document: { id: 801, file_name: 'safety_clearance_scan.pdf', file: '#', status: 'REJECTED', reviewer_comment: 'Document scan is blurry and truncated. Please re-upload full PDF.' } }
+        ]
+      },
+      {
+        id: 6,
+        application_number: 'APP-2026-5120',
+        partner: 8,
+        partner_name: 'Rohan Verma',
+        business_name: 'Kaveri Retail Franchisees LLP',
+        blueprint: 2,
+        blueprint_name: 'Regional Franchisee Partner Blueprint',
+        status: 'UNDER_REVIEW',
+        created_at: '2026-09-05T09:00:00Z',
+        submitted_at: '2026-09-05T10:15:00Z',
+        completed_percent: 66,
+        is_editable: false,
+        checklist_items: [
+          { id: 6001, document_name: 'Trade License', is_mandatory: true, order: 1, document: { id: 901, file_name: 'trade_license_kaveri.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Valid until 2029.' } },
+          { id: 6002, document_name: 'Franchise Agreement Deed', is_mandatory: true, order: 2, document: { id: 902, file_name: 'franchise_agreement_signed.pdf', file: '#', status: 'UNDER_REVIEW', reviewer_comment: null } }
+        ]
+      },
+      {
+        id: 7,
+        application_number: 'APP-2026-6703',
+        partner: 9,
+        partner_name: 'Vikramaditya Rao',
+        business_name: 'Trident Cold Storage & Logistics',
+        blueprint: 1,
+        blueprint_name: 'Standard Enterprise Vendor Blueprint',
+        status: 'APPROVED',
+        created_at: '2026-09-02T15:20:00Z',
+        submitted_at: '2026-09-02T17:00:00Z',
+        completed_percent: 100,
+        is_editable: false,
+        checklist_items: []
+      },
+      {
+        id: 8,
+        application_number: 'APP-2026-7890',
+        partner: 10,
+        partner_name: 'Meera Nair',
+        business_name: 'Astra Software Solutions Pvt Ltd',
+        blueprint: 4,
+        blueprint_name: 'IT Services & Cloud Partner Blueprint',
+        status: 'PENDING_APPROVAL',
+        created_at: '2026-09-05T18:00:00Z',
+        submitted_at: '2026-09-05T19:30:00Z',
+        completed_percent: 100,
+        is_editable: false,
+        checklist_items: [
+          { id: 8001, document_name: 'SOC2 Type II Audit Report', is_mandatory: true, order: 1, document: { id: 1001, file_name: 'soc2_report_astra_2025.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Clean SOC2 audit report verified.' } },
+          { id: 8002, document_name: 'Data Processing Agreement', is_mandatory: true, order: 2, document: { id: 1002, file_name: 'dpa_signed_astra.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'DPA terms compliant.' } }
+        ]
+      },
+      {
+        id: 9,
+        application_number: 'APP-2026-8104',
+        partner: 11,
+        partner_name: 'Sanjay Reddy',
+        business_name: 'Deccan Pharma Distributors',
+        blueprint: 2,
+        blueprint_name: 'Regional Franchisee Partner Blueprint',
+        status: 'REJECTED',
+        created_at: '2026-09-01T08:00:00Z',
+        submitted_at: '2026-09-01T10:00:00Z',
+        completed_percent: 33,
+        is_editable: false,
+        checklist_items: [
+          { id: 9001, document_name: 'Trade License', is_mandatory: true, order: 1, document: { id: 1101, file_name: 'trade_license_deccan.pdf', file: '#', status: 'REJECTED', reviewer_comment: 'Trade license expired on Dec 31, 2025.' } }
+        ]
       }
     ];
 
@@ -239,7 +366,8 @@ const handleMockFallback = (config) => {
       data: [
         { id: 501, file_name: 'gst_certificate_apex.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'GSTIN verified with government portal.', uploaded_at: '2026-09-06T09:10:00Z', title: 'GST Registration Certificate', is_mandatory: true },
         { id: 502, file_name: 'pan_card_apex.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Valid entity PAN.', uploaded_at: '2026-09-06T09:12:00Z', title: 'Company PAN Card', is_mandatory: true },
-        { id: 503, file_name: 'cancelled_cheque_mumbai.pdf', file: '#', status: 'PENDING', reviewer_comment: null, uploaded_at: '2026-09-06T09:14:00Z', title: 'Cancelled Cheque & Bank Account Details', is_mandatory: true }
+        { id: 503, file_name: 'cancelled_cheque_mumbai.pdf', file: '#', status: 'PENDING', reviewer_comment: null, uploaded_at: '2026-09-06T09:14:00Z', title: 'Cancelled Cheque & Bank Account Details', is_mandatory: true },
+        { id: 504, file_name: 'audited_financials_fy25.pdf', file: '#', status: 'APPROVED', reviewer_comment: 'Audited balance sheet accepted.', uploaded_at: '2026-09-06T09:15:00Z', title: 'Audited Financial Statements', is_mandatory: false }
       ],
       status: 200,
       statusText: 'OK',
@@ -253,7 +381,8 @@ const handleMockFallback = (config) => {
       data: [
         { id: 1, actor_name: 'Rajesh Sharma', action: 'SUBMITTED', description: 'Submitted application APP-2026-8841 for compliance verification.', created_at: '2026-09-06T09:15:00Z' },
         { id: 2, actor_name: 'Ananya Iyer (Compliance)', action: 'DOCUMENT_VERIFIED', description: 'Verified GST Registration Certificate.', created_at: '2026-09-06T09:40:00Z' },
-        { id: 3, actor_name: 'Ananya Iyer (Compliance)', action: 'DOCUMENT_VERIFIED', description: 'Verified Company PAN Card.', created_at: '2026-09-06T09:42:00Z' }
+        { id: 3, actor_name: 'Ananya Iyer (Compliance)', action: 'DOCUMENT_VERIFIED', description: 'Verified Company PAN Card.', created_at: '2026-09-06T09:42:00Z' },
+        { id: 4, actor_name: 'Vikram Deshmukh (Admin)', action: 'BLUEPRINT_CREATED', description: 'Assigned Standard Enterprise Vendor Blueprint.', created_at: '2026-09-06T08:35:00Z' }
       ],
       status: 200,
       statusText: 'OK',
