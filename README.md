@@ -4,6 +4,14 @@
 
 ---
 
+### 🌐 Live Links & Deployment
+
+- **Live Production Application**: [https://onboardx-enterprise.vercel.app](https://onboardx-enterprise.vercel.app)
+- **GitHub Repository**: [https://github.com/samayshrey-dev/ONBOARDX](https://github.com/samayshrey-dev/ONBOARDX)
+- **Hosting & Infrastructure**: Vercel (`onboardx-enterprise`)
+
+---
+
 ## 📌 Project Overview
 
 **ONBOARDX** simplifies enterprise partner onboarding (vendors, regional distributors, franchisees) by replacing email threads and ad-hoc spreadsheets with a transparent, stage-gated compliance workflow.
@@ -73,7 +81,7 @@ Traditional partner onboarding suffers from three major flaws:
 ## 🛠️ Technology Stack
 
 - **Backend**: Python 3.11, Django 4.2 LTS, Django REST Framework, SimpleJWT (JWT Access/Refresh Tokens), PostgreSQL (SQLite3 fallback).
-- **Frontend**: React 18 (JavaScript), Vite, Bootstrap 5 + Bootstrap Icons, Axios, React Router DOM v6.
+- **Frontend**: React 19 (JavaScript), Vite, Bootstrap 5 + Bootstrap Icons, Axios, React Router DOM.
 - **Design System**: Monochrome Palette (Black `#000000`, Off-White `#FAFAFA`, Grayscale `#212529`/`#6C757D`), Monospace typography accents, CSS micro-animations.
 
 ---
@@ -169,7 +177,7 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:5173` to access the application.
+Visit `http://localhost:5173` to access the local application.
 
 ---
 
@@ -177,7 +185,7 @@ Visit `http://localhost:5173` to access the application.
 
 Run the comprehensive 26-test backend suite (including authentication, password recovery, authorization, document upload security, and stage-gated workflow tests):
 ```bash
-..\venv\Scripts\python.exe manage.py test
+python backend/manage.py test
 ```
 
 ---
@@ -191,4 +199,5 @@ Run the comprehensive 26-test backend suite (including authentication, password 
 [x] Document security: File size limit (10MB), restricted file extensions (.pdf, .png, .jpg, .jpeg), MIME validation
 [x] Production security settings: DEBUG toggling, environment SECRET_KEY, restricted CORS_ALLOWED_ORIGINS
 [x] Clean production build: Vite build output verified with 0 errors
+[x] Live Vercel deployment: https://onboardx-enterprise.vercel.app
 ```
