@@ -105,6 +105,46 @@ class Command(BaseCommand):
                 'company_name': 'Quantum Tech Solutions',
                 'phone_number': '+91 98789 01234'
             },
+            {
+                'username': 'maharashtra_freight',
+                'email': 'ops@mhfreight.in',
+                'role': CustomUser.Role.PARTNER,
+                'is_staff': False,
+                'is_superuser': False,
+                'password': 'PartnerPassword123!',
+                'company_name': 'Maharashtra Freight Carriers Pvt Ltd',
+                'phone_number': '+91 98890 12345'
+            },
+            {
+                'username': 'bharat_green',
+                'email': 'contact@bharatgreen.in',
+                'role': CustomUser.Role.PARTNER,
+                'is_staff': False,
+                'is_superuser': False,
+                'password': 'PartnerPassword123!',
+                'company_name': 'Bharat Green Energy Solutions LLP',
+                'phone_number': '+91 98901 23456'
+            },
+            {
+                'username': 'kaveri_retail',
+                'email': 'partners@kaveriretail.com',
+                'role': CustomUser.Role.PARTNER,
+                'is_staff': False,
+                'is_superuser': False,
+                'password': 'PartnerPassword123!',
+                'company_name': 'Kaveri Retail Franchisees LLP',
+                'phone_number': '+91 99012 34567'
+            },
+            {
+                'username': 'astra_software',
+                'email': 'legal@astrasoftware.in',
+                'role': CustomUser.Role.PARTNER,
+                'is_staff': False,
+                'is_superuser': False,
+                'password': 'PartnerPassword123!',
+                'company_name': 'Astra Software Solutions Pvt Ltd',
+                'phone_number': '+91 99123 45678'
+            },
         ]
 
         users_dict = {}
@@ -345,6 +385,76 @@ class Command(BaseCommand):
                     {'req_name': 'PAN Card', 'status': Document.Status.UPLOADED, 'item_status': ApplicationChecklistItem.ItemStatus.PROVIDED, 'comment': None},
                     {'req_name': 'Store Premises Deed', 'status': Document.Status.UPLOADED, 'item_status': ApplicationChecklistItem.ItemStatus.PROVIDED, 'comment': None},
                     {'req_name': 'Bank Account Verification', 'status': Document.Status.UPLOADED, 'item_status': ApplicationChecklistItem.ItemStatus.PROVIDED, 'comment': None},
+                ],
+                'final_approval': None
+            },
+            {
+                'app_num': 'APP-2026-0007',
+                'partner': users_dict['maharashtra_freight'],
+                'blueprint': blueprints_dict['COMPANY'],
+                'business_name': 'Maharashtra Freight Carriers Pvt Ltd',
+                'contact_email': 'ops@mhfreight.in',
+                'contact_phone': '+91 98890 12345',
+                'business_details': 'Regional freight transport and inter-state logistics operator.',
+                'status': OnboardingApplication.Status.SUBMITTED,
+                'created_days_ago': 2,
+                'submitted_days_ago': 1,
+                'docs_config': [
+                    {'req_name': 'PAN Card', 'status': Document.Status.APPROVED, 'item_status': ApplicationChecklistItem.ItemStatus.VERIFIED, 'comment': 'Valid PAN.'},
+                    {'req_name': 'GST Certificate', 'status': Document.Status.UPLOADED, 'item_status': ApplicationChecklistItem.ItemStatus.PROVIDED, 'comment': None},
+                ],
+                'final_approval': None
+            },
+            {
+                'app_num': 'APP-2026-0008',
+                'partner': users_dict['bharat_green'],
+                'blueprint': blueprints_dict['COMPANY'],
+                'business_name': 'Bharat Green Energy Solutions LLP',
+                'contact_email': 'contact@bharatgreen.in',
+                'contact_phone': '+91 98901 23456',
+                'business_details': 'Clean energy technology developer specializing in commercial solar microgrids.',
+                'status': OnboardingApplication.Status.CORRECTION_REQUIRED,
+                'created_days_ago': 5,
+                'submitted_days_ago': 4,
+                'docs_config': [
+                    {'req_name': 'PAN Card', 'status': Document.Status.APPROVED, 'item_status': ApplicationChecklistItem.ItemStatus.VERIFIED, 'comment': 'PAN Verified.'},
+                    {'req_name': 'GST Certificate', 'status': Document.Status.REJECTED, 'item_status': ApplicationChecklistItem.ItemStatus.REJECTED, 'comment': 'Blurry scan. Please re-upload clear PDF.'},
+                ],
+                'final_approval': None
+            },
+            {
+                'app_num': 'APP-2026-0009',
+                'partner': users_dict['kaveri_retail'],
+                'blueprint': blueprints_dict['DISTRIBUTOR'],
+                'business_name': 'Kaveri Retail Franchisees LLP',
+                'contact_email': 'partners@kaveriretail.com',
+                'contact_phone': '+91 99012 34567',
+                'business_details': 'Retail franchise operator in southern regional hubs.',
+                'status': OnboardingApplication.Status.UNDER_REVIEW,
+                'created_days_ago': 3,
+                'submitted_days_ago': 2,
+                'docs_config': [
+                    {'req_name': 'Trade License', 'status': Document.Status.APPROVED, 'item_status': ApplicationChecklistItem.ItemStatus.VERIFIED, 'comment': 'Trade License verified.'},
+                    {'req_name': 'GST Certificate', 'status': Document.Status.UNDER_REVIEW, 'item_status': ApplicationChecklistItem.ItemStatus.PROVIDED, 'comment': 'Under compliance review.'},
+                ],
+                'final_approval': None
+            },
+            {
+                'app_num': 'APP-2026-0010',
+                'partner': users_dict['astra_software'],
+                'blueprint': blueprints_dict['COMPANY'],
+                'business_name': 'Astra Software Solutions Pvt Ltd',
+                'contact_email': 'legal@astrasoftware.in',
+                'contact_phone': '+91 99123 45678',
+                'business_details': 'SaaS enterprise software and IT systems integrator.',
+                'status': OnboardingApplication.Status.PENDING_APPROVAL,
+                'created_days_ago': 2,
+                'submitted_days_ago': 1,
+                'docs_config': [
+                    {'req_name': 'PAN Card', 'status': Document.Status.APPROVED, 'item_status': ApplicationChecklistItem.ItemStatus.VERIFIED, 'comment': 'Verified.'},
+                    {'req_name': 'GST Certificate', 'status': Document.Status.APPROVED, 'item_status': ApplicationChecklistItem.ItemStatus.VERIFIED, 'comment': 'Verified.'},
+                    {'req_name': 'Registration Certificate', 'status': Document.Status.APPROVED, 'item_status': ApplicationChecklistItem.ItemStatus.VERIFIED, 'comment': 'Verified.'},
+                    {'req_name': 'Bank Details', 'status': Document.Status.APPROVED, 'item_status': ApplicationChecklistItem.ItemStatus.VERIFIED, 'comment': 'Verified.'},
                 ],
                 'final_approval': None
             }

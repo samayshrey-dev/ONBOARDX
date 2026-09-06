@@ -362,6 +362,23 @@ const handleMockFallback = (config) => {
         checklist_items: [
           { id: 9001, document_name: 'Trade License', is_mandatory: true, order: 1, document: { id: 1101, file_name: 'trade_license_deccan.pdf', file: '#', status: 'REJECTED', reviewer_comment: 'Trade license expired on Dec 31, 2025.' } }
         ]
+      },
+      {
+        id: 10,
+        application_number: 'APP-2026-9055',
+        partner: 12,
+        partner_name: 'Alok Bansal',
+        business_name: 'Quantum Tech Components Pvt Ltd',
+        blueprint: 3,
+        blueprint_name: 'Hardware & Energy Supplier Blueprint',
+        status: 'SUBMITTED',
+        created_at: '2026-09-06T09:00:00Z',
+        submitted_at: '2026-09-06T09:30:00Z',
+        completed_percent: 50,
+        is_editable: false,
+        checklist_items: [
+          { id: 10001, document_name: 'Industrial License & Safety Clearance', is_mandatory: true, order: 1, document: { id: 1201, file_name: 'industrial_safety_clearance.pdf', file: '#', status: 'UPLOADED', reviewer_comment: null } }
+        ]
       }
     ];
 
