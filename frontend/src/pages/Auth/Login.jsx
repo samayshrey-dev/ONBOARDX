@@ -15,7 +15,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setErrorMsg('');
     setSubmitting(true);
     try {
@@ -34,13 +34,35 @@ const Login = () => {
     }
   };
 
+  const handleQuickDemoLogin = async (userType) => {
+    const targetUser = userType;
+    const targetPass = `${userType.charAt(0).toUpperCase() + userType.slice(1)}Password123!`;
+    setUsername(targetUser);
+    setPassword(targetPass);
+    setErrorMsg('');
+    setSubmitting(true);
+    try {
+      const loggedUser = await login(targetUser, targetPass);
+      addToast(`Session authenticated for ${loggedUser.username || targetUser}`);
+      if (loggedUser.role === 'PARTNER') navigate('/partner');
+      else if (loggedUser.role === 'REVIEWER') navigate('/reviewer');
+      else if (loggedUser.role === 'ADMIN') navigate('/admin');
+      else navigate('/partner');
+    } catch (err) {
+      const msg = err.response?.data?.detail || err.message || 'Authentication failed.';
+      setErrorMsg(msg);
+      addToast(msg, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div
       className="min-vh-100 d-flex align-items-center justify-content-center px-3 position-relative"
     >
       <GridScan />
       <div className="w-100 position-relative animate-fade-in-up" style={{ maxWidth: 420, zIndex: 1 }}>
-
 
         <div className="text-center mb-4">
           <Link to="/" className="text-decoration-none hover-scale d-inline-block">
@@ -61,32 +83,35 @@ const Login = () => {
           {/* Quick Demo Credentials Bar */}
           <div className="mb-4 p-3 bg-light border border-dark rounded-1">
             <div className="font-mono text-uppercase text-muted mb-2 text-center small fw-bold" style={{ fontSize: '0.6875rem' }}>
-              1-CLICK DEMO LOGIN:
+              1-CLICK DEMO LOGIN (INSTANT ACCESS):
             </div>
-            <div className="d-flex gap-2 justify-content-center">
+            <div className="d-flex flex-wrap gap-2 justify-content-center">
               <button
                 type="button"
-                className="btn btn-sm btn-ox-white font-mono text-uppercase px-2.5 py-1"
-                style={{ fontSize: '0.7rem' }}
-                onClick={() => { setUsername('admin'); setPassword('AdminPassword123!'); }}
+                disabled={submitting}
+                className="btn btn-sm btn-ox-black font-mono text-uppercase px-2.5 py-1.5"
+                style={{ fontSize: '0.75rem' }}
+                onClick={() => handleQuickDemoLogin('admin')}
               >
-                ● ADMIN
+                ● ADMIN DEMO
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-ox-white font-mono text-uppercase px-2.5 py-1"
-                style={{ fontSize: '0.7rem' }}
-                onClick={() => { setUsername('reviewer'); setPassword('ReviewerPassword123!'); }}
+                disabled={submitting}
+                className="btn btn-sm btn-ox-white font-mono text-uppercase px-2.5 py-1.5"
+                style={{ fontSize: '0.75rem' }}
+                onClick={() => handleQuickDemoLogin('reviewer')}
               >
-                ◐ REVIEWER
+                ◐ REVIEWER DEMO
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-ox-white font-mono text-uppercase px-2.5 py-1"
-                style={{ fontSize: '0.7rem' }}
-                onClick={() => { setUsername('partner'); setPassword('PartnerPassword123!'); }}
+                disabled={submitting}
+                className="btn btn-sm btn-ox-white font-mono text-uppercase px-2.5 py-1.5"
+                style={{ fontSize: '0.75rem' }}
+                onClick={() => handleQuickDemoLogin('partner')}
               >
-                ○ PARTNER
+                ○ PARTNER DEMO
               </button>
             </div>
           </div>
@@ -140,7 +165,6 @@ const Login = () => {
                 </Link>
               </div>
             </div>
-
 
             <button
               type="submit"

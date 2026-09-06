@@ -438,9 +438,11 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
+    const token = localStorage.getItem('access_token') || '';
+    const isDemoToken = !token || token === 'demo_access_token' || token.includes('demo');
 
-    // Trigger mock fallback when backend returns 405 Method Not Allowed, 404 Not Found, or Network Error on Vercel
-    if (!error.response || status === 405 || status === 404 || error.code === 'ERR_NETWORK') {
+    // Trigger mock fallback when backend returns 405 Method Not Allowed, 404 Not Found, Network Error, or 401 with demo token
+    if (!error.response || status === 405 || status === 404 || error.code === 'ERR_NETWORK' || (status === 401 && isDemoToken)) {
       return handleMockFallback(originalRequest);
     }
 
@@ -448,7 +450,7 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       const refreshToken = localStorage.getItem('refresh_token');
 
-      if (refreshToken && refreshToken !== 'demo_mode_refresh_token') {
+      if (refreshToken && refreshToken !== 'demo_mode_refresh_token' && !refreshToken.includes('demo')) {
         try {
           const res = await axios.post(`${API_BASE_URL}auth/token/refresh/`, {
             refresh: refreshToken,
@@ -465,6 +467,8 @@ apiClient.interceptors.response.use(
           localStorage.removeItem('demo_user');
           window.location.href = '/login';
         }
+      } else {
+        return handleMockFallback(originalRequest);
       }
     }
     return Promise.reject(error);
