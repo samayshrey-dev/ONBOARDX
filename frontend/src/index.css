@@ -1,0 +1,367 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+:root {
+  /* 100% Pure Monochrome Palette */
+  --ox-black: #000000;
+  --ox-near-black: #0F0F11;
+  --ox-dark-gray: #1E1E22;
+  --ox-medium-gray: #64646E;
+  --ox-light-gray: #A1A1AA;
+  --ox-border-subtle: #E4E4E7;
+  --ox-border-strong: #000000;
+  --ox-canvas: #FFFFFF;
+
+  --ox-surface: #FFFFFF;
+
+  --ox-radius-sm: 3px;
+  --ox-radius: 6px;
+  --ox-radius-lg: 8px;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 15px;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--ox-canvas);
+  color: var(--ox-near-black);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-mono {
+  font-family: 'Space Mono', monospace;
+}
+
+/* Precise Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ox-black);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.ox-display-title {
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.ox-section-title {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.ox-editorial-num {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: clamp(2rem, 3.5vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* Surface & Surface Cards */
+.ox-card {
+  background-color: var(--ox-surface);
+  border: 1px solid var(--ox-border-subtle);
+  border-radius: var(--ox-radius);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ox-card:hover {
+  border-color: var(--ox-black);
+}
+
+.ox-card-dark {
+  background-color: var(--ox-near-black);
+  color: #FFFFFF;
+  border: 1px solid var(--ox-dark-gray);
+  border-radius: var(--ox-radius);
+}
+
+/* Buttons */
+.btn-ox-black, .btn-ox-accent {
+  background-color: var(--ox-black);
+  color: #FFFFFF !important;
+  border: 1px solid var(--ox-black);
+  border-radius: var(--ox-radius-sm);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  padding: 0.55rem 1.25rem;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.btn-ox-black:hover, .btn-ox-accent:hover {
+  background-color: var(--ox-dark-gray);
+  border-color: var(--ox-dark-gray);
+  color: #FFFFFF !important;
+}
+
+.btn-ox-black:active, .btn-ox-accent:active {
+  transform: scale(0.98);
+}
+
+.btn-ox-white, .btn-ox-outline {
+  background-color: var(--ox-surface);
+  color: var(--ox-black) !important;
+  border: 1px solid var(--ox-border-strong);
+  border-radius: var(--ox-radius-sm);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  padding: 0.55rem 1.25rem;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.btn-ox-white:hover, .btn-ox-outline:hover {
+  background-color: #F4F4F5;
+  border-color: var(--ox-black);
+  color: var(--ox-black) !important;
+}
+
+.btn-ox-ghost {
+  background-color: transparent;
+  color: var(--ox-black);
+  border: 1px solid transparent;
+  border-radius: var(--ox-radius-sm);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 0.55rem 1rem;
+  transition: all 0.15s ease;
+}
+
+.btn-ox-ghost:hover {
+  background-color: #F4F4F5;
+}
+
+/* Nav Links */
+.ox-nav-link {
+  color: var(--ox-medium-gray);
+  text-decoration: none;
+  padding: 0.55rem 0.875rem;
+  border-radius: var(--ox-radius-sm);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  transition: all 0.15s ease;
+  border-left: 2px solid transparent;
+}
+
+.ox-nav-link:hover {
+  color: var(--ox-black);
+  background-color: #F4F4F5;
+}
+
+.ox-nav-link.active {
+  color: var(--ox-black);
+  background-color: #F4F4F5;
+  border-left-color: var(--ox-black);
+}
+
+/* Form Inputs */
+.form-control, .form-select {
+  border: 1px solid var(--ox-border-subtle);
+  border-radius: var(--ox-radius-sm);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
+  background-color: var(--ox-surface);
+  color: var(--ox-near-black);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--ox-black);
+  box-shadow: 0 0 0 1px var(--ox-black);
+  outline: none;
+}
+
+/* Table Styles */
+.table {
+  --bs-table-bg: transparent;
+  color: var(--ox-near-black);
+  margin-bottom: 0;
+}
+
+.table th {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ox-medium-gray);
+  border-bottom: 1px solid var(--ox-border-strong);
+  padding: 0.75rem 1rem;
+}
+
+.table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--ox-border-subtle);
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #F4F4F5;
+}
+
+/* Modal Content */
+.modal-content {
+  border-radius: var(--ox-radius);
+  border: 1px solid var(--ox-black);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  background-color: var(--ox-surface);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--ox-border-subtle);
+  padding: 1rem 1.25rem;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--ox-border-subtle);
+  padding: 0.875rem 1.25rem;
+}
+
+/* Enforce High Contrast on Dark Background Containers */
+.bg-dark, .ox-card-dark, .bg-black, [style*="background-color: #000000"], [style*="backgroundColor: '#000000'"] {
+  color: #FFFFFF !important;
+}
+
+.bg-dark h1, .bg-dark h2, .bg-dark h3, .bg-dark h4, .bg-dark h5, .bg-dark h6,
+.ox-card-dark h1, .ox-card-dark h2, .ox-card-dark h3, .ox-card-dark h4, .ox-card-dark h5, .ox-card-dark h6,
+.bg-black h1, .bg-black h2, .bg-black h3, .bg-black h4, .bg-black h5, .bg-black h6,
+.text-white h1, .text-white h2, .text-white h3, .text-white h4, .text-white h5, .text-white h6 {
+  color: #FFFFFF !important;
+}
+
+/* Custom Global Animations & Micro-Interactions */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes floatSmooth {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.08);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* Utility Animation Classes */
+.animate-fade-in-up {
+  animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+  animation: floatSmooth 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s infinite;
+}
+
+.stagger-1 { animation-delay: 0.08s; }
+.stagger-2 { animation-delay: 0.16s; }
+.stagger-3 { animation-delay: 0.24s; }
+.stagger-4 { animation-delay: 0.32s; }
+.stagger-5 { animation-delay: 0.40s; }
+
+/* Interactive Hover Utilities */
+.hover-lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease !important;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.12) !important;
+  border-color: var(--ox-black) !important;
+}
+
+.hover-scale {
+  transition: transform 0.2s ease !important;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02) !important;
+}
+
+.hover-glow {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease !important;
+}
+
+.hover-glow:hover {
+  border-color: var(--ox-black) !important;
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.1) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

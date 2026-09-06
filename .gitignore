@@ -1,0 +1,35 @@
+# Python / Django
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.db
+*.sqlite3
+db.sqlite3-journal
+
+# Node / Vite Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+node_modules/
+dist/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Environment Variables & Secrets
+.env
+.env.local
+
+# Media & Storage
+backend/media/*
+!backend/media/partner_documents/
+backend/staticfiles/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
